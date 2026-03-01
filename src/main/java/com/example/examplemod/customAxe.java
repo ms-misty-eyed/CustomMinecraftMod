@@ -12,7 +12,7 @@ import net.minecraft.world.level.block.state.BlockState;
 public class customAxe extends AxeItem {
 
     public customAxe(){
-        super(Tiers.DIAMOND, 0,0, new Item.Properties().tab(CreativeModeTab.TAB_TOOLS));
+        super(Tiers.DIAMOND, 1,0, new Item.Properties().tab(CreativeModeTab.TAB_TOOLS));
     }
 
     @Override
