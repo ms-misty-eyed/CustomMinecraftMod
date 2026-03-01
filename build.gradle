@@ -1,0 +1,97 @@
+buildscript {
+    repositories {
+        maven { url = 'https://maven.minecraftforge.net' }
+        mavenCentral()
+    }
+    dependencies {
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
+    }
+}
+apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'eclipse'
+apply plugin: 'maven-publish'
+
+version = '1.0'
+group = 'com.yourname.modid'
+archivesBaseName = 'modid'
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+minecraft {
+    mappings channel: 'official', version: '1.18'
+    runs {
+        client {
+            property 'org.lwjgl.librarypath', file("${buildDir}/natives/macos/arm64/org/lwjgl").getAbsolutePath()
+            workingDirectory project.file('run')
+            property 'lwjgl.librarypath', "${project.buildDir}/natives"
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+            jvmArgs '-XstartOnFirstThread'
+            mods { examplemod { source sourceSets.main } }
+        }
+    }
+}
+
+repositories {
+    maven { url = 'https://maven.minecraftforge.net' }
+    mavenCentral()
+}
+
+dependencies {
+    minecraft 'net.minecraftforge:forge:1.18-38.0.17'
+    def lwjgl_version = "3.3.1"
+    if (System.getProperty("os.name").toLowerCase().contains("mac")) {
+        implementation(platform("org.lwjgl:lwjgl-bom:$lwjgl_version"))
+        ["", "-jemalloc", "-openal", "-opengl", "-glfw", "-stb", "-tinyfd"].each {
+            runtimeOnly "org.lwjgl:lwjgl${it}:${lwjgl_version}:natives-macos-arm64"
+        }
+    }
+}
+
+// THE FIX: This waits until the "runClient" task is actually called to move files
+task appleSiliconNatives {
+    doLast {
+        def versions = "3.3.1"
+        def components = ["lwjgl", "lwjgl-jemalloc", "lwjgl-openal", "lwjgl-opengl", "lwjgl-glfw", "lwjgl-stb", "lwjgl-tinyfd"]
+        def nativesDir = file("${buildDir}/natives")
+        nativesDir.mkdirs()
+
+        components.each { component ->
+            def jarName = "${component}-${versions}-natives-macos-arm64.jar"
+            def url = "https://repo1.maven.org/maven2/org/lwjgl/${component}/${versions}/${jarName}"
+            def destJar = file("${nativesDir}/${jarName}")
+
+            println "Downloading: ${jarName}"
+            new URL(url).withInputStream { i -> destJar.withOutputStream { it << i } }
+
+            // Manually unzip using the System's unzip command
+            exec {
+                commandLine 'unzip', '-o', destJar.absolutePath, '*.dylib', '-d', nativesDir.absolutePath
+            }
+        }
+        // Clean up the jars
+        delete fileTree(dir: nativesDir, include: "*.jar")
+    }
+}
+
+// This safely hooks the fix into the run sequence without crashing the build
+project.afterEvaluate {
+    def runTask = tasks.findByName('runClient')
+    if (runTask) {
+        runTask.dependsOn appleSiliconNatives
+    }
+}
+
+jar.finalizedBy('reobfJar')
+
+configurations.all {
+    resolutionStrategy {
+        force 'org.lwjgl:lwjgl:3.3.1'
+        force 'org.lwjgl:lwjgl-jemalloc:3.3.1'
+        force 'org.lwjgl:lwjgl-openal:3.3.1'
+        force 'org.lwjgl:lwjgl-opengl:3.3.1'
+        force 'org.lwjgl:lwjgl-glfw:3.3.1'
+        force 'org.lwjgl:lwjgl-stb:3.3.1'
+        force 'org.lwjgl:lwjgl-tinyfd:3.3.1'
+    }
+}
