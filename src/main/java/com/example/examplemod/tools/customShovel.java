@@ -1,4 +1,4 @@
-package com.example.examplemod.Tools;
+package com.example.examplemod.tools;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;

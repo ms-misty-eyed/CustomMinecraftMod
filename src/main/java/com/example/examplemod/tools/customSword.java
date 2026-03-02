@@ -1,4 +1,4 @@
-package com.example.examplemod.Tools;
+package com.example.examplemod.tools;
 
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.*;
