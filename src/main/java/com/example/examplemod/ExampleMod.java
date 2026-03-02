@@ -36,8 +36,9 @@ public class ExampleMod{
 
         //************ REGISTER ITEMS ******************
         registerItem(mySword, "my_sword");
-        registerItem(myPickaxe, "my_pickaxe");
+        registerItem(myPickaxe, "my_pioche");
         registerItem(myAxe, "my_axe");
+        registerItem(myShovel, "my_shovel");
     }
     public static ArrayList<Item> itemsToRegister = new ArrayList<>();
 
@@ -54,6 +55,11 @@ public class ExampleMod{
     private void registerItem(customAxe myAxe, String myAxe1) {
         myAxe.setRegistryName(myAxe1);
         itemsToRegister.add(myAxe);
+    }
+
+    private void registerItem(customShovel myShovel, String myShovel1){
+        myShovel.setRegistryName(myShovel1);
+        itemsToRegister.add(myShovel);
     }
 
     @SubscribeEvent
