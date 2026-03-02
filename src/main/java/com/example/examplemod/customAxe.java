@@ -2,11 +2,9 @@ package com.example.examplemod;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class customAxe extends AxeItem {
@@ -30,10 +28,6 @@ public class customAxe extends AxeItem {
             world.destroyBlock(positionUnder, true, player);
             positionUnder = positionUnder.below();
         }
-
         return originalResult;
     }
-
-
-
 }

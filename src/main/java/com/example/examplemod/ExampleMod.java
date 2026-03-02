@@ -24,12 +24,14 @@ public class ExampleMod{
     public static customSword mySword;
     public static customPickaxe myPickaxe;
     public static customAxe myAxe;
+    public static customShovel myShovel;
 
     public ExampleMod(){
         //************ INITIALIZE VARIABLES ******************
         mySword = new customSword();
         myPickaxe = new customPickaxe();
         myAxe = new customAxe();
+        myShovel = new customShovel();
 
 
         //************ REGISTER ITEMS ******************
