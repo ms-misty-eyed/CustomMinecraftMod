@@ -1,73 +1,32 @@
 package com.example.examplemod;
 
-import net.minecraftforge.client.event.ColorHandlerEvent;
-import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
-
-import java.util.*;
+import com.example.examplemod.Tools.*;
 import net.minecraft.world.item.Item;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegistryObject;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 @Mod(ExampleMod.MODID)
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
-
-public class ExampleMod{
-    //************ DECLARE VARIABLES ******************
+public class ExampleMod {
     public static final String MODID = "examplemod";
-    public static final String MODNAME = "ModName";
-    public static String VERSION = "0.0.3";
 
-    private static final Logger LOGGER = LogManager.getLogger();
+    // 1. Create the Register "Bucket"
+    public static final DeferredRegister<Item> ITEMS =
+            DeferredRegister.create(ForgeRegistries.ITEMS, MODID);
 
-    public static customSword mySword;
-    public static customPickaxe myPickaxe;
-    public static customAxe myAxe;
-    public static customShovel myShovel;
+    // 2. Register items directly. No more manual ArrayList!
+    public static final RegistryObject<Item> MY_SWORD = ITEMS.register("my_sword", customSword::new);
+    public static final RegistryObject<Item> MY_PICKAXE = ITEMS.register("my_pioche", customPickaxe::new);
+    public static final RegistryObject<Item> MY_AXE = ITEMS.register("my_axe", customAxe::new);
+    public static final RegistryObject<Item> MY_SHOVEL = ITEMS.register("my_shovel", customShovel::new);
 
-    public ExampleMod(){
-        //************ INITIALIZE VARIABLES ******************
-        mySword = new customSword();
-        myPickaxe = new customPickaxe();
-        myAxe = new customAxe();
-        myShovel = new customShovel();
+    public ExampleMod() {
+        IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
 
-
-        //************ REGISTER ITEMS ******************
-        registerItem(mySword, "my_sword");
-        registerItem(myPickaxe, "my_pioche");
-        registerItem(myAxe, "my_axe");
-        registerItem(myShovel, "my_shovel");
-    }
-    public static ArrayList<Item> itemsToRegister = new ArrayList<>();
-
-    private void registerItem(customSword mySword, String mySword1) {
-        mySword.setRegistryName(mySword1);
-        itemsToRegister.add(mySword);
-    }
-
-    private void registerItem(customPickaxe myPickaxe, String myPickaxe1) {
-        myPickaxe.setRegistryName(myPickaxe1);
-        itemsToRegister.add(myPickaxe);
-    }
-
-    private void registerItem(customAxe myAxe, String myAxe1) {
-        myAxe.setRegistryName(myAxe1);
-        itemsToRegister.add(myAxe);
-    }
-
-    private void registerItem(customShovel myShovel, String myShovel1){
-        myShovel.setRegistryName(myShovel1);
-        itemsToRegister.add(myShovel);
-    }
-
-    @SubscribeEvent
-    public static void registerItems(RegistryEvent.Register<Item> event){doItemRegistry(event);}
-
-    private static void doItemRegistry(RegistryEvent.Register<Item> event) {
-        event.getRegistry().registerAll(itemsToRegister.toArray(new Item[itemsToRegister.size()]));
+        // 3. Tell the bus to handle our items
+        ITEMS.register(bus);
     }
 }
-
-
