@@ -1,25 +1,18 @@
 package com.example.examplemod.Tools;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class customShovel extends ShovelItem {
     public customShovel() {
         super(Tiers.DIAMOND, 0,0, new Item.Properties().tab(CreativeModeTab.TAB_TOOLS));
     }
-
-    //GOAL: Get a circular hole of radius 2. O is the center, * are the blocks that I want to remove
-
-    //          ***
-    //         *****
-    //         **O**
-    //         *****
-    //          ***
-
 
     @Override
     public boolean mineBlock(ItemStack stack, Level world, BlockState state, BlockPos pos, LivingEntity player) {
@@ -41,7 +34,20 @@ public class customShovel extends ShovelItem {
 
                         // 2. Make sure we don't re-mine the center or break non-dirt blocks
                         if (targetState.is(BlockTags.MINEABLE_WITH_SHOVEL) && !targetPos.equals(pos)) {
-                            world.destroyBlock(targetPos, true, player);
+                            // 1. Handle Drops
+                            Block.getDrops(targetState, (ServerLevel)world, targetPos, null, player, stack)
+                                    .forEach(itemStack -> Block.popResource(world, targetPos, itemStack));
+
+                            //Spawn Particles ONLY
+                            // We send a 'block break' particle packet without the sound event
+                            ((ServerLevel)world).sendParticles(
+                                    new net.minecraft.core.particles.BlockParticleOption(net.minecraft.core.particles.ParticleTypes.BLOCK, targetState),
+                                    targetPos.getX() + 0.5, targetPos.getY() + 0.5, targetPos.getZ() + 0.5,
+                                    10, 0.2, 0.2, 0.2, 0.15
+                            );
+
+                            // Remove the block (Silent)
+                            world.removeBlock(targetPos, false);
                         }
                     }
                 }
